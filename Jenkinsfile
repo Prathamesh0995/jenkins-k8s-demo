@@ -49,13 +49,15 @@ pipeline {
 
 
         stage('Deploy to Kubernetes') {
-            steps {
-                sh '''
-                kubectl config use-context minikube
-                kubectl apply -f k8s/deployment.yaml
-                '''
-            }
+    steps {
+        script {
+            sh '''
+                export KUBECONFIG=/home/prathamesh/.kube/config
+                sudo -E kubectl config use-context minikube
+                sudo -E kubectl apply -f k8s/deployment.yaml
+            '''
         }
     }
 }
+
 
