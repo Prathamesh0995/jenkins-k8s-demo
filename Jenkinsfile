@@ -51,7 +51,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        export KUBECONFIG=/home/prathamesh/.kube/config
+                        KUBECONFIG=/home/prathamesh/.kube/config
                         export KUBECONFIG=/var/lib/jenkins/.kube/config && kubectl config use-context minikube
                         kubectl apply -f k8s/deployment.yaml
                     '''
