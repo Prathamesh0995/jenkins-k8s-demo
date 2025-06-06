@@ -30,6 +30,24 @@ pipeline {
             }
         }
 
+        stage('Validate Kubernetes Context') {
+  steps {
+    script {
+      def contextExists = sh(
+        script: "kubectl config get-contexts -o name | grep -w minikube || true",
+        returnStdout: true
+      ).trim()
+      
+      if (!contextExists) {
+        error "Kubernetes context 'minikube' not found. Please run 'minikube start' and ensure the kubeconfig is accessible."
+      } else {
+        echo "✅ Kubernetes context 'minikube' found."
+      }
+    }
+  }
+}
+
+
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
