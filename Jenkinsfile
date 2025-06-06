@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'prathamesh1809/jenkins-k8s-demo'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
@@ -34,12 +35,12 @@ pipeline {
             steps {
                 script {
                     def contextExists = sh(
-                        script: "kubectl config get-contexts -o name | grep -w minikube || true",
+                        script: "KUBECONFIG=${env.KUBECONFIG} kubectl config get-contexts -o name | grep -w minikube || true",
                         returnStdout: true
                     ).trim()
                     
                     if (!contextExists) {
-                        error "Kubernetes context 'minikube' not found. Please run 'minikube start' and ensure the kubeconfig is accessible."
+                        error "❌ Kubernetes context 'minikube' not found or not accessible by Jenkins. Make sure KUBECONFIG is correct and has proper permissions."
                     } else {
                         echo "✅ Kubernetes context 'minikube' found."
                     }
@@ -50,13 +51,13 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh '''
-                        KUBECONFIG=/home/prathamesh/.kube/config
-                        export KUBECONFIG=/var/lib/jenkins/.kube/config && kubectl config use-context minikube
+                    sh """
+                        export KUBECONFIG=${env.KUBECONFIG}
+                        kubectl config use-context minikube
                         kubectl apply -f k8s/deployment.yaml
-                    '''
+                    """
                 }
             }
         }
-    } // <-- This was missing
+    }
 }
