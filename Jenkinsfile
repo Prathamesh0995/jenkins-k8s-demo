@@ -2,62 +2,63 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'prathamesh1809/jenkins-k8s-demo'
+        DOCKER_IMAGE = 'prathamesh1809/jenkins-k8s-demo:latest'
+        KUBECONFIG = '/home/prathamesh/.kube/config'
     }
 
     stages {
         stage('Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/Prathamesh0995/jenkins-k8s-demo.git'
+                git 'https://github.com/Prathamesh0995/jenkins-k8s-demo.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE)
+                    sh 'docker build -t $DOCKER_IMAGE .'
                 }
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                withDockerRegistry([ credentialsId: 'edb56442-75ba-4f05-92b7-b5b5088aa113', url: '' ]) {
+                withDockerRegistry([credentialsId: 'dockerhub-credentials', url: 'https://index.docker.io/v1/']) {
                     script {
-                        docker.image(DOCKER_IMAGE).push('latest')
+                        sh '''
+                            docker tag $DOCKER_IMAGE $DOCKER_IMAGE
+                            docker push $DOCKER_IMAGE
+                        '''
                     }
                 }
             }
         }
 
         stage('Validate Kubernetes Context') {
-  steps {
-    script {
-      def contextExists = sh(
-        script: "kubectl config get-contexts -o name | grep -w minikube || true",
-        returnStdout: true
-      ).trim()
-      
-      if (!contextExists) {
-        error "Kubernetes context 'minikube' not found. Please run 'minikube start' and ensure the kubeconfig is accessible."
-      } else {
-        echo "✅ Kubernetes context 'minikube' found."
-      }
-    }
-  }
-}
-
+            steps {
+                script {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        if kubectl config get-contexts -o name | grep -w minikube; then
+                            echo "✅ Kubernetes context 'minikube' found."
+                        else
+                            echo "❌ Minikube context not found." && exit 1
+                        fi
+                    '''
+                }
+            }
+        }
 
         stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            sh '''
-                export KUBECONFIG=/home/prathamesh/.kube/config
-                sudo -E kubectl config use-context minikube
-                sudo -E kubectl apply -f k8s/deployment.yaml
-            '''
+            steps {
+                script {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        sudo -E kubectl config use-context minikube
+                        sudo -E kubectl apply -f k8s/deployment.yaml
+                    '''
+                }
+            }
         }
     }
 }
-
-
