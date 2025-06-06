@@ -51,6 +51,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
+<<<<<<< HEAD
                 script {
                     sh '''
                         export KUBECONFIG=$KUBECONFIG
@@ -58,7 +59,17 @@ pipeline {
                         sudo -E kubectl apply -f k8s/deployment.yaml
                     '''
                 }
+=======
+                sh '''
+                kubectl config use-context minikube
+                kubectl apply -f k8s/deployment.yaml
+                '''
+>>>>>>> parent of 06e3e5c (Update Jenkinsfile)
             }
         }
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 06e3e5c (Update Jenkinsfile)
