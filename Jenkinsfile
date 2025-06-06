@@ -53,7 +53,7 @@ pipeline {
                     sh '''
                         export KUBECONFIG=/home/prathamesh/.kube/config
                         export KUBECONFIG=/var/lib/jenkins/.kube/config && kubectl config use-context minikube
-                        sudo -E kubectl apply -f k8s/deployment.yaml
+                        kubectl apply -f k8s/deployment.yaml
                     '''
                 }
             }
