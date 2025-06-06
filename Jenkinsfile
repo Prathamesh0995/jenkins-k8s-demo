@@ -3,12 +3,14 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'prathamesh1809/jenkins-k8s-demo'
+        
     }
 
     stages {
         stage('Clone') {
             steps {
                 git branch: 'main', url: 'https://github.com/Prathamesh0995/jenkins-k8s-demo.git'
+                
             }
         }
 
@@ -16,6 +18,7 @@ pipeline {
             steps {
                 script {
                     docker.build(DOCKER_IMAGE)
+                    
                 }
             }
         }
@@ -23,8 +26,10 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 withDockerRegistry([ credentialsId: 'edb56442-75ba-4f05-92b7-b5b5088aa113', url: '' ]) {
+                
                     script {
                         docker.image(DOCKER_IMAGE).push('latest')
+                        
                     }
                 }
             }
@@ -47,33 +52,9 @@ pipeline {
   }
 }
 
+            
 
         stage('Deploy to Kubernetes') {
-<<<<<<< HEAD
-            steps {
-<<<<<<< HEAD
-                script {
-                    sh '''
-                        export KUBECONFIG=$KUBECONFIG
-                        sudo -E kubectl config use-context minikube
-                        sudo -E kubectl apply -f k8s/deployment.yaml
-                    '''
-                }
-=======
-                sh '''
-                kubectl config use-context minikube
-                kubectl apply -f k8s/deployment.yaml
-                '''
->>>>>>> parent of 06e3e5c (Update Jenkinsfile)
-            }
-        }
-    }
-}
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 06e3e5c (Update Jenkinsfile)
-=======
     steps {
         script {
             sh '''
@@ -81,9 +62,7 @@ pipeline {
                 sudo -E kubectl config use-context minikube
                 sudo -E kubectl apply -f k8s/deployment.yaml
             '''
+            
         }
     }
 }
-
-
->>>>>>> parent of d8518e3 (Update Jenkinsfile)
