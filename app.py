@@ -3,7 +3,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return "Hello from Jenkins CI/CD on Kubernetes! <br> hello everyone welcome to my portfolio"
+    return "Hello from Jenkins CI/CD on Kubern!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
